@@ -296,7 +296,7 @@ var DAYS=[
    matEssay:"Tarde sevillana y de máximo arte. <strong>José Antonio Morante de la Puebla</strong> es el torero más influyente y personal del siglo XXI, un artista de concepto puro capaz de detener el tiempo; su regreso a San Fermín, donde el año pasado abrió la Puerta Grande con Álvaro Núñez, es uno de los grandes acontecimientos del abono. Le acompañan dos paisanos sevillanos de hondísimo gusto. <strong>Pablo Aguado</strong> encarna el toreo de cadencia, temple y pureza, capaz de levantar a los tendidos cuando el toro se presta a su clasicismo. <strong>Borja Jiménez</strong>, de Espartinas, vive su momento de explosión: regular, valiente y poderoso, ha pegado en 2025-2026 el golpe definitivo para instalarse entre las figuras, con triunfos sonados en Sevilla. Con los toros nobles y de clase de Álvaro Núñez, el cartel del 10 de julio reúne a tres toreros de la escuela sevillana —arte, temple y entrega— en una de las tardes con mayor carga estética de la feria. Si el toro colabora, la cita puede convertirse en la cumbre artística de San Fermín 2026.",
    matLabel:"Matadores",
    cenas:[
-     {name:"Desayuno · Sociedad Gastronómica Napardi",time:"10:00 (llegar 09:45)",pax:"Peña + invitados Miguel Ángel, Luci, José María Sevilla (10)",addr:"C. Jarauta 2",url:"https://maps.app.goo.gl/kYY1XZSNRAnUHJ3a6?g_st=ic",breakfast:true},
+     {name:"Desayuno · Sociedad Gastronómica Napardi",time:"10:00 (llegar 09:45)",pax:"Peña + invitados Miguel Ángel, Luci, José María Sevilla (10)",addr:"C. Jarauta 2",url:"https://maps.app.goo.gl/C8xJMpV8Cr4X1dYLA?g_st=ic",breakfast:true},
      {name:"El Mercao",time:"22:30",pax:"Gerhard, Tomoko, Peter, Elena, Achim, Günter, Puri (7)",addr:"C. de Tafalla 7",url:"https://www.google.com/maps/search/?api=1&query=El%20Mercao&query_place_id=ChIJ7UMRpaqTUA0RGAzLXvZgi_8"} ] },
 
  { iso:"2026-07-11", dow:"Sáb", num:"11", mon:"Jul", kind:"corr", kindLabel:"Corrida de toros",
@@ -340,6 +340,7 @@ var DAYS=[
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 /* Anton (poster face) lacks a reliable ñ glyph — render ñ/Ñ in the UI sans so brand names stay correct */
 function poster(s){return String(s).split(/([ñÑ])/).map(function(p){return (p==='ñ'||p==='Ñ')?'<span style="font-family:var(--sans);font-weight:800">'+p+'</span>':esc(p);}).join('');}
+function tmin(s){var m=String(s).match(/(\d{1,2}):(\d{2})/);return m?parseInt(m[1],10)*60+parseInt(m[2],10):9999;}
 function todayISO(){return new Date(Date.now()+2*3600000).toISOString().slice(0,10);} // CEST approx
 var toastTm;
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastTm);toastTm=setTimeout(function(){t.classList.remove('show');},2000);}
@@ -410,51 +411,55 @@ function renderFeria(){
       +(d.cenas.length?'<span>·</span><span>🍴 '+d.cenas.length+'</span>':'')
       +'</div></div></div>'
       +'<span class="chev">▾</span></div>';
-    /* body */
+    /* body — blocks ordered chronologically by time */
     h+='<div class="day-body"><div class="day-body-in">';
+    var parts=[];
 
-    /* APARTADO */
-    h+='<div class="blk"><div class="blk-head"><div class="blk-ico bi-apar">🕛</div>'
+    /* APARTADO (12:00) */
+    parts.push({t:720, html:
+      '<div class="blk"><div class="blk-head"><div class="blk-ico bi-apar">🕛</div>'
       +'<div class="blk-tt"><div class="blk-name">Apartado</div><div class="blk-time"><b>12:00</b> · corrales de la plaza</div></div></div>'
       +'<div class="blk-body">'
-      +'<div class="note">El apartado o sorteo: a mediodía se sortean y emparejan los toros que se lidiarán por la tarde, y se encierran de uno en uno en los chiqueros. Un rito madrugador muy del gusto del aficionado.</div>'
+      +'<div class="note">El apartado o sorteo: a mediodía se sortean y emparejan los toros que se lidiarán por la tarde, y se encierran de uno en uno en los chiqueros. Un rito madrugador muy del gusto del aficionado. <b>Entrada: 15&nbsp;€/día.</b></div>'
       +'<div class="where"><span class="pin">📍</span><span>'+PLAZA_NAME+'</span></div>'
       +mapActs(PLAZA_URL,'Plaza de Toros de Pamplona')
-      +'</div></div>';
+      +'</div></div>' });
 
     /* CORRIDA → Ganadería + Matadores */
-    h+='<div class="blk"><div class="blk-head"><div class="blk-ico bi-corr">🐂</div>'
+    parts.push({t:tmin(d.corrTime), html:
+      '<div class="blk"><div class="blk-head"><div class="blk-ico bi-corr">🐂</div>'
       +'<div class="blk-tt"><div class="blk-name">'+esc(d.kindLabel.split(' · ')[0])+'</div><div class="blk-time"><b>'+d.corrTime+'</b> · Plaza de Toros</div></div></div>'
       +'<div class="blk-body">'
       +'<div class="where"><span class="pin">📍</span><span>'+PLAZA_NAME+'</span></div>'
       +mapActs(PLAZA_URL,'Plaza de Toros de Pamplona')
-      /* Ganadería sub-block */
       +'<div class="blk" style="margin-top:13px"><div class="blk-head"><div class="blk-ico bi-gan">🐃</div>'
       +'<div class="blk-tt"><div class="blk-name">Ganadería · '+esc(d.ganName)+'</div><div class="blk-time">El hierro de la tarde</div></div></div>'
       +'<div class="blk-body"><div class="tag-row">'+d.ganTags.map(function(x){return '<span class="tag gold">'+esc(x)+'</span>';}).join('')+'</div>'
       +'<div class="essay">'+d.ganEssay+'</div></div></div>'
-      /* Matadores sub-block */
       +'<div class="blk" style="margin-top:11px"><div class="blk-head"><div class="blk-ico bi-mat">⚔️</div>'
       +'<div class="blk-tt"><div class="blk-name">'+d.matLabel+'</div><div class="blk-time">La terna</div></div></div>'
       +'<div class="blk-body"><ul class="terna">'
       +d.terna.map(function(m,k){return '<li><span class="tn">'+(k+1)+'</span><span class="tname">'+esc(m[0])+'</span><span class="torigin">'+esc(m[1])+'</span></li>';}).join('')
       +'</ul><div class="essay">'+d.matEssay+'</div></div></div>'
-      +'</div></div>';
+      +'</div></div>' });
 
-    /* CENAS */
-    if(d.cenas.length){
-      d.cenas.forEach(function(c,ci){
-        var icon=c.breakfast?'☕':(c.lunch?'🍽️':'🍴');
-        h+='<div class="blk'+(ci>0?'':'')+'"><div class="blk-head"><div class="blk-ico bi-cena">'+icon+'</div>'
-          +'<div class="blk-tt"><div class="blk-name">'+(c.breakfast?'Desayuno':(c.lunch?'Comida':'Cena'))+' · '+esc(c.name.replace('Desayuno · ','').replace(' · comida',''))+'</div>'
-          +'<div class="blk-time"><b>'+esc(c.time)+'</b></div></div></div>'
-          +'<div class="blk-body">'
-          +'<div class="diners"><b>👥 </b>'+esc(c.pax)+'</div>'
-          +'<div class="where"><span class="pin">📍</span><span>'+esc(c.addr)+'</span></div>'
-          +mapActs(c.url,c.addr)
-          +'</div></div>';
-      });
-    }
+    /* MEALS (breakfast / lunch / dinner) at their own time */
+    d.cenas.forEach(function(c){
+      var icon=c.breakfast?'☕':(c.lunch?'🍽️':'🍴');
+      var label=c.breakfast?'Desayuno':(c.lunch?'Comida':'Cena');
+      parts.push({t:tmin(c.time), html:
+        '<div class="blk"><div class="blk-head"><div class="blk-ico bi-cena">'+icon+'</div>'
+        +'<div class="blk-tt"><div class="blk-name">'+label+' · '+esc(c.name.replace('Desayuno · ','').replace(' · comida',''))+'</div>'
+        +'<div class="blk-time"><b>'+esc(c.time)+'</b></div></div></div>'
+        +'<div class="blk-body">'
+        +'<div class="diners"><b>👥 </b>'+esc(c.pax)+'</div>'
+        +'<div class="where"><span class="pin">📍</span><span>'+esc(c.addr)+'</span></div>'
+        +mapActs(c.url,c.addr)
+        +'</div></div>' });
+    });
+
+    parts.sort(function(a,b){return a.t-b.t;});
+    h+=parts.map(function(p){return p.html;}).join('');
 
     h+='</div></div></div>';
   });
@@ -494,6 +499,7 @@ function renderCartel(){
     +'<div class="info-card"><h3>Precios</h3><div class="sub">Localidades de la Peña Borussia en el Tendido 1.</div>'
     +'<div class="price-row"><div class="pr-l"><b>Abono completo</b> · los 10 festejos</div><div class="pr-v">678&nbsp;€</div></div>'
     +'<div class="price-row"><div class="pr-l">Entrada suelta · <b>6 al 14 de julio</b></div><div class="pr-v">71&nbsp;€<small>/día</small></div></div>'
+    +'<div class="price-row"><div class="pr-l"><b>Apartado</b> · entrada al sorteo de la mañana</div><div class="pr-v">15&nbsp;€<small>/día</small></div></div>'
     +'</div>';
 
   h+='<div class="info-card"><h3>Reparto de abonos</h3><div class="sub">Tendido 1 · 10 localidades.</div>'
@@ -572,4 +578,3 @@ window.addEventListener('unhandledrejection',function(e){e.preventDefault();});
 </script>
 </body>
 </html>
-
