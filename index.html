@@ -349,6 +349,10 @@ img{max-width:100%;display:block}
 .feat-fig .cred{display:block;font-size:9px;color:var(--ink-4);font-weight:800;letter-spacing:.4px;text-transform:uppercase;margin-top:3px}
 .feat-cta-wrap{margin-top:15px}
 .feat-source{font-size:10px;color:var(--ink-4);margin-top:9px;line-height:1.45}
+
+.ps-photo{margin:12px 0 0;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--border-2);background:#fff}
+.ps-photo img{width:100%;height:auto;display:block}
+.ps-photo figcaption{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-4);padding:6px 10px;background:var(--paper-2);border-top:1px solid var(--border-2)}
 </style>
 </head>
 <body>
@@ -796,6 +800,7 @@ function penyaStrip(i){
   } else {
     h+='<div class="ps-none">'+t('penya_none')+'</div>';
   }
+  h+='<figure class="ps-photo"><img loading="lazy" alt="" src="img/pena-'+DAYS[i].iso+'.jpg" onerror="this.closest(\'.ps-photo\').remove()"><figcaption>'+t('penya_today')+' · '+esc(dowShort(DAYS[i].iso))+' '+DAYS[i].num+' '+MON[LANG]+'</figcaption></figure>';
   h+='</div>';
   return h;
 }
